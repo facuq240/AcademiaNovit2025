@@ -30,35 +30,19 @@ jobs:
 
     - name: Send mail
       uses: dawidd6/action-send-mail@v6
-      #env:
-      # Optional http proxy:
-      # HTTP_PROXY: http://proxy.example.test:3128
+    - name: Send mail
+    
+  uses: dawidd6/action-send-mail@v6
       with:
-        connection_url: ${{secrets.MAIL_CONNECTION}}
-        # Required mail server address if not connection_url:
-        server_address: ${{secrets.SECRET_HOST}} 
-        # Server port, default 25:
-        server_port: ${{secrets.SECRET_PORT}}
-        # Optional whether this connection use TLS (default is true if server_port is 465)
-        secure: false
-        # Optional (recommended) mail server username:
-        username: ${{secrets.SECRET_LOGIN}}
-        # Optional (recommended) mail server password:
-        password: ${{secrets.SECRET_PASS}}
-        # Required mail subject:
+        server_address: ${{secrets.SECRET_HOST}}     # ej: smtp.debugmail.io
+        server_port: ${{secrets.SECRET_PORT}}        # ej: 25 o 587
+        secure: false                                # DebugMail no necesita TLS
+        username: ${{secrets.SECRET_LOGIN}}          # tu usuario de DebugMail
+        password: ${{secrets.SECRET_PASS}}           # tu contraseña de DebugMail
         subject: Prueba de Workflow
-        # Required recipients' addresses:
         to: obiwan@example.com,yoda@example.com
-        # Required sender full name (address can be skipped):
-        from: Luke Skywalker <facuq240@gmail.com>
-        # Optional plain body:
+        from: Luke Skywalker <facuq240@debugmail.io> # puede ser cualquier cosa
         body: Build job of ${{github.repository}} completed successfully!
-        # Optional unsigned/invalid certificates allowance:
         ignore_cert: true
-        # Optional converting Markdown to HTML (set content_type to text/html too):
         convert_markdown: true
-        # Optional attachments:
-        attachments: attachments.zip,git.diff,./dist/static/*.js
-        # Optional priority: 'high', 'normal' (default) or 'low'
-        priority: low
-
+        priority: normal  
