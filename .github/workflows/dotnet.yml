@@ -29,12 +29,9 @@ jobs:
       with:
         server_address: ${{secrets.EMAIL_HOST}}     # ej: smtp.debugmail.io
         server_port: ${{secrets.EMAIL_PORT}}        # ej: 25 o 587
-        username: ${{secrets.EMAIL_LOGIN}}          # tu usuario de DebugMail
+        username: ${{secrets.EMAIL_USER}}          # tu usuario de DebugMail
         password: ${{secrets.EMAIL_PASS}}           # tu contraseña de DebugMail
         subject: Prueba de Workflow
         to: obiwan@example.com,yoda@example.com
         from: Luke Skywalker # puede ser cualquier cosa
-        body: Build job of ${{github.repository}} completed successfully!
-        ignore_cert: true
-        convert_markdown: true
-        priority: normal  
+        body: Build job of ${{github.repository}} completed successfully! 
