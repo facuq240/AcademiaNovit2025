@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:17.5
+    container_name: postgres_local
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: tivon1234
+      POSTGRES_DB: datos
+    ports:
+      - "5432:5432"
+
+  api:
+    image: academianovit:latest
+    container_name: api_local
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      ConnectionStrings__DefaultConnection: Host=postgres_local;Port=5432;Database=datos;Username=admin;Password=tivon1234
