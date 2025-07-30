@@ -1,11 +1,12 @@
 using AcademiaNovit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Scalar.AspNetCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#region configuracion del Serilog
+#region Configuración de Serilog
 
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
@@ -14,21 +15,44 @@ builder.Host.UseSerilog((context, loggerConfiguration) => loggerConfiguration
     .Enrich.FromLogContext()
     .WriteTo.Console());
 
-# endregion
+#endregion
 
-#region leer variables de entorno
+#region Leer cadena de conexión
 
-builder.Configuration.AddEnvironmentVariables();
+string? dbConnectionFile = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING_FILE");
+string connectionString;
+
+if (!string.IsNullOrEmpty(dbConnectionFile))
+{
+    Console.WriteLine($"[INFO] Variable de entorno DB_CONNECTION_STRING_FILE detectada: {dbConnectionFile}");
+
+    if (File.Exists(dbConnectionFile))
+    {
+        connectionString = File.ReadAllText(dbConnectionFile).Trim();
+        Console.WriteLine($"[INFO] Cadena de conexión leída correctamente desde secreto: {connectionString}");
+    }
+    else
+    {
+        Console.WriteLine($"[ERROR] No se encontró el archivo secreto en: {dbConnectionFile}");
+        throw new FileNotFoundException($"Archivo secreto no encontrado: {dbConnectionFile}");
+    }
+}
+else
+{
+    Console.WriteLine("[INFO] No se encontró la variable DB_CONNECTION_STRING_FILE, usando appsettings.json");
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+}
 
 #endregion
 
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+#region Configuración de PostgreSQL
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 
-builder.Services.AddOpenApi();
+#endregion
 
+builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -41,10 +65,9 @@ using (var scope = app.Services.CreateScope())
 
 app.MapOpenApi();
 app.MapScalarApiReference();
-
 app.MapControllers();
 
-#region keep alive endpoint
+#region Endpoint keep-alive
 
 app.MapGet("/keep-alive", () => new
 {
@@ -56,4 +79,4 @@ app.MapGet("/keep-alive", () => new
 
 app.Run();
 
-public partial class Program { } // This partial class is required for the WebApplicationFactory to work properly in tests. 
+public partial class Program { }

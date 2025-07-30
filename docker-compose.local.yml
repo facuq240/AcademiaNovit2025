@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.9'
 
 services:
   postgres:
@@ -19,4 +19,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      ConnectionStrings__DefaultConnection: Host=postgres_local;Port=5432;Database=datos;Username=admin;Password=tivon1234
+      DB_CONNECTION_STRING_FILE: /run/secrets/db_connection_string
+    secrets:
+      - db_connection_string
+
+secrets:
+  db_connection_string:
+    file: ./secrets/db_connection_string.txt
